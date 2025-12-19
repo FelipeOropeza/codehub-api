@@ -7,9 +7,20 @@ import { PostsModule } from './posts/posts.module';
 import { CommentsModule } from './comments/comments.module';
 import { LikesModule } from './likes/likes.module';
 import { FollowsModule } from './follows/follows.module';
+import { ConfigModule } from '@nestjs/config';
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
-  imports: [AuthModule, UsersModule, PostsModule, CommentsModule, LikesModule, FollowsModule],
+  imports: [
+    PrismaModule,
+    AuthModule,
+    UsersModule,
+    PostsModule,
+    CommentsModule,
+    LikesModule,
+    FollowsModule,
+    ConfigModule.forRoot({ isGlobal: true }),
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
