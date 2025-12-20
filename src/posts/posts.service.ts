@@ -17,4 +17,8 @@ export class PostsService {
         
         return { message: 'Post criado com sucesso' };
     }
+
+    async getAllPosts() {
+        return this.prisma.post.findMany();
+    }
 }
