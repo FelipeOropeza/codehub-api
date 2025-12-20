@@ -9,7 +9,4 @@ export class CreatePostDto {
 
     @IsString()
     language: string;
-
-    @IsString()
-    authorId: string;
 }
