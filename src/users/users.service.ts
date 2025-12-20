@@ -25,4 +25,10 @@ export class UsersService {
       messagem: 'Usuário registrado com sucesso',
     };
   }
+
+  deleteUser(id: string) {
+    return this.prisma.user.delete({
+      where: { id },
+    });
+  }
 }
