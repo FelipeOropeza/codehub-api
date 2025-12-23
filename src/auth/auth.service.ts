@@ -7,7 +7,6 @@ import { UsersService } from '../users/users.service';
 @Injectable()
 export class AuthService {
   constructor(
-    private prisma: PrismaService,
     private usersService: UsersService,
     private jwtService: JwtService,
   ) {}
@@ -26,7 +25,7 @@ export class AuthService {
     }
 
     return {
-      accessToken: this.generateTokens(user.id),
+      accessToken: this.jwtService.sign({ sub: user.id }, { expiresIn: '15m' }),
       user: {
         name: user.name,
         email: user.email,
@@ -34,15 +33,5 @@ export class AuthService {
         avatarUrl: user.avatar,
       },
     };
-  }
-
-  private generateTokens(userId: string) {
-    const payload = { sub: userId };
-
-    const accessToken = this.jwtService.sign(payload, {
-      expiresIn: '15m',
-    });
-
-    return { accessToken };
   }
 }
