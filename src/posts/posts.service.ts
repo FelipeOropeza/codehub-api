@@ -3,22 +3,49 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class PostsService {
-    constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) {}
 
-    async createPost(data: { title: string; code: string; language: string; authorId: string }) {
-        await this.prisma.post.create({
-            data: {
-                title: data.title,
-                code: data.code,
-                language: data.language,
-                authorId: data.authorId
-            }
-        });
-        
-        return { message: 'Post criado com sucesso' };
-    }
+  async createPost(data: {
+    title: string;
+    code: string;
+    language: string;
+    authorId: string;
+  }) {
+    const post = await this.prisma.post.create({
+      data: {
+        title: data.title,
+        code: data.code,
+        language: data.language,
+        authorId: data.authorId,
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            avatar: true,
+          },
+        },
+      },
+    });
 
-    async getAllPosts() {
-        return this.prisma.post.findMany();
-    }
+    return post;
+  }
+
+  async getAllPosts() {
+    return this.prisma.post.findMany({
+      orderBy: {
+        createdAt: 'desc',
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            avatar: true,
+          },
+        },
+      },
+    });
+  }
 }
