@@ -1,22 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
-export class PostsService {
+export class CommentsService {
   constructor(private prisma: PrismaService) {}
 
-  async createPost(data: {
-    title: string;
-    code: string;
-    language: string;
-    authorId: string;
-  }) {
-    const post = await this.prisma.post.create({
+  async create(userId: string, postId: string, content: string) {
+    return this.prisma.comment.create({
       data: {
-        title: data.title,
-        code: data.code,
-        language: data.language,
-        authorId: data.authorId,
+        content,
+        postId,
+        authorId: userId,
       },
       include: {
         author: {
@@ -28,8 +22,6 @@ export class PostsService {
         },
       },
     });
-
-    return post;
   }
 
   async getPostById(postId: string, userId?: string) {
@@ -63,33 +55,17 @@ export class PostsService {
     });
   }
 
-  async getAllPosts(userId?: string) {
-    const posts = await this.prisma.post.findMany({
-      include: {
-        _count: {
-          select: { likes: true, comments: true },
-        },
-        likes: userId
-          ? {
-              where: { userId },
-              select: { id: true },
-            }
-          : false,
-        author: {
-          select: {
-            id: true,
-            name: true,
-            avatar: true,
-          },
-        },
-      },
-      orderBy: { createdAt: 'desc' },
+  async delete(commentId: string, userId: string) {
+    const comment = await this.prisma.comment.findUnique({
+      where: { id: commentId },
     });
 
-    return posts.map((post) => ({
-      ...post,
-      likedByMe: userId ? post.likes.length > 0 : false,
-      likes: undefined,
-    }));
+    if (!comment || comment.authorId !== userId) {
+      throw new ForbiddenException();
+    }
+
+    return this.prisma.comment.delete({
+      where: { id: commentId },
+    });
   }
 }
