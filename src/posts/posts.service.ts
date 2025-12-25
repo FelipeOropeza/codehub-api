@@ -32,12 +32,18 @@ export class PostsService {
     return post;
   }
 
-  async getAllPosts() {
-    return this.prisma.post.findMany({
-      orderBy: {
-        createdAt: 'desc',
-      },
+  async getAllPosts(userId?: string) {
+    const posts = await this.prisma.post.findMany({
       include: {
+        _count: {
+          select: { likes: true },
+        },
+        likes: userId
+          ? {
+              where: { userId },
+              select: { id: true },
+            }
+          : false,
         author: {
           select: {
             id: true,
@@ -46,6 +52,13 @@ export class PostsService {
           },
         },
       },
+      orderBy: { createdAt: 'desc' },
     });
+
+    return posts.map((post) => ({
+      ...post,
+      likedByMe: userId ? post.likes.length > 0 : false,
+      likes: undefined, // limpa a resposta
+    }));
   }
 }

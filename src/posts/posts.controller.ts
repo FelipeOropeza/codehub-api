@@ -1,8 +1,9 @@
-import { Controller, UseGuards, Post, Get,Body } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { PostsService } from './posts.service';
-import { CreatePostDto } from './dto/create-post.dto';
-import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { Controller, Post, Get, Body, UseGuards } from '@nestjs/common'
+import { PostsService } from './posts.service'
+import { CreatePostDto } from './dto/create-post.dto'
+import { JwtAuthGuard } from '../auth/jwt-auth.guard'
+import { OptionalJwtAuthGuard } from '../common/guards/optional-jwt.guard'
+import { CurrentUser } from '../common/decorators/current-user.decorator'
 
 @Controller('posts')
 export class PostsController {
@@ -17,11 +18,12 @@ export class PostsController {
     return this.postService.createPost({
       ...dto,
       authorId: user.userId,
-    });
+    })
   }
 
+  @UseGuards(OptionalJwtAuthGuard)
   @Get()
-  getAllPosts() {
-    return this.postService.getAllPosts();
+  getAll(@CurrentUser() user?: { userId: string }) {
+    return this.postService.getAllPosts(user?.userId)
   }
 }
