@@ -24,34 +24,15 @@ export class CommentsService {
     });
   }
 
-  async getPostById(postId: string, userId?: string) {
-    return this.prisma.post.findUnique({
-      where: { id: postId },
+  async getCommentsByPost(postId: string) {
+    return this.prisma.comment.findMany({
+      where: { postId },
       include: {
         author: {
           select: { id: true, name: true, avatar: true },
         },
-        comments: {
-          include: {
-            author: {
-              select: { id: true, name: true, avatar: true },
-            },
-          },
-          orderBy: { createdAt: 'asc' },
-        },
-        _count: {
-          select: {
-            likes: true,
-            comments: true,
-          },
-        },
-        likes: userId
-          ? {
-              where: { userId },
-              select: { id: true },
-            }
-          : false,
       },
+      orderBy: { createdAt: 'asc' },
     });
   }
 

@@ -21,6 +21,7 @@ export class PostsController {
     });
   }
 
+  @UseGuards(OptionalJwtAuthGuard)
   @Get(':id')
   getOne(@Param('id') id: string, @CurrentUser() user?: { userId: string }) {
     return this.postService.getPostById(id, user?.userId);
