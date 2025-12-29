@@ -1,12 +1,13 @@
-import { Module } from '@nestjs/common'
-import { AuthModule } from './auth/auth.module'
-import { UsersModule } from './users/users.module'
-import { PostsModule } from './posts/posts.module'
-import { CommentsModule } from './comments/comments.module'
-import { LikesModule } from './likes/likes.module'
-import { FollowsModule } from './follows/follows.module'
-import { PrismaModule } from './prisma/prisma.module'
-import { ConfigModule } from '@nestjs/config'
+import { Module } from '@nestjs/common';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
+import { PostsModule } from './posts/posts.module';
+import { CommentsModule } from './comments/comments.module';
+import { LikesModule } from './likes/likes.module';
+import { FollowsModule } from './follows/follows.module';
+import { PrismaModule } from './prisma/prisma.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -17,7 +18,8 @@ import { ConfigModule } from '@nestjs/config'
     CommentsModule,
     LikesModule,
     FollowsModule,
-    ConfigModule.forRoot({ isGlobal: true }),
-  ]
+    CloudinaryModule,
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
+  ],
 })
 export class AppModule {}
