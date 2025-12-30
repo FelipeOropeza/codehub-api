@@ -8,6 +8,7 @@ import {
   Body,
   Delete,
   Patch,
+  Param,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -47,6 +48,11 @@ export class UsersController {
       ...dto,
       ...(avatarUrl && { avatar: avatarUrl }),
     });
+  }
+
+  @Get(':id')
+  getUserById(@Param('id') id: string) {
+    return this.userService.findById(id);
   }
 
   @Post('register')
