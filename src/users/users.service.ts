@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { UpdateProfileDto } from './dto/update-profile.dto';
@@ -25,6 +25,14 @@ export class UsersService {
   }
 
   async register(data: { name: string; email: string; password: string }) {
+    const userExists = await this.prisma.user.findUnique({
+      where: { email: data.email },
+    });
+
+    if (userExists) {
+      throw new BadRequestException('Email já está em uso');
+    }
+
     const hashedPassword = await bcrypt.hash(data.password, 10);
 
     await this.prisma.user.create({
@@ -36,7 +44,7 @@ export class UsersService {
     });
 
     return {
-      messagem: 'Usuário registrado com sucesso',
+      message: 'Usuário registrado com sucesso',
     };
   }
 
