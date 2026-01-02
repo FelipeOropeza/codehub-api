@@ -17,18 +17,18 @@ export class FollowsController {
 
   @Post(':userId')
   follow(
-    @CurrentUser('id') userId: string,
+    @CurrentUser() user: { userId: string },
     @Param('userId') targetUserId: string,
   ) {
-    return this.followsService.follow(userId, targetUserId)
+    return this.followsService.follow(user.userId, targetUserId)
   }
 
   @Delete(':userId')
   unfollow(
-    @CurrentUser('id') userId: string,
+    @CurrentUser() user: { userId: string },
     @Param('userId') targetUserId: string,
   ) {
-    return this.followsService.unfollow(userId, targetUserId)
+    return this.followsService.unfollow(user.userId, targetUserId)
   }
 
   @Get(':userId/followers')
@@ -43,9 +43,9 @@ export class FollowsController {
 
   @Get(':userId/is-following')
   isFollowing(
-    @CurrentUser('id') userId: string,
+    @CurrentUser() user: { userId: string },
     @Param('userId') targetUserId: string,
   ) {
-    return this.followsService.isFollowing(userId, targetUserId)
+    return this.followsService.isFollowing(user.userId, targetUserId)
   }
 }

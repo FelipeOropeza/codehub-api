@@ -1,5 +1,5 @@
-import { Injectable, BadRequestException } from '@nestjs/common'
-import { PrismaService } from '../prisma/prisma.service'
+import { Injectable, BadRequestException } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class FollowsService {
@@ -7,7 +7,20 @@ export class FollowsService {
 
   async follow(userId: string, targetUserId: string) {
     if (userId === targetUserId) {
-      throw new BadRequestException('Você não pode seguir a si mesmo')
+      throw new BadRequestException('Você não pode seguir a si mesmo');
+    }
+
+    const alreadyFollowing = await this.prisma.follow.findUnique({
+      where: {
+        followerId_followingId: {
+          followerId: userId,
+          followingId: targetUserId,
+        },
+      },
+    });
+
+    if (alreadyFollowing) {
+      throw new BadRequestException('Você já segue este usuário');
     }
 
     return this.prisma.follow.create({
@@ -15,10 +28,23 @@ export class FollowsService {
         followerId: userId,
         followingId: targetUserId,
       },
-    })
+    });
   }
-
+  
   async unfollow(userId: string, targetUserId: string) {
+    const follow = await this.prisma.follow.findUnique({
+      where: {
+        followerId_followingId: {
+          followerId: userId,
+          followingId: targetUserId,
+        },
+      },
+    });
+
+    if (!follow) {
+      throw new BadRequestException('Você não segue este usuário');
+    }
+
     return this.prisma.follow.delete({
       where: {
         followerId_followingId: {
@@ -26,7 +52,7 @@ export class FollowsService {
           followingId: targetUserId,
         },
       },
-    })
+    });
   }
 
   async followers(userId: string) {
@@ -41,7 +67,7 @@ export class FollowsService {
           },
         },
       },
-    })
+    });
   }
 
   async following(userId: string) {
@@ -56,7 +82,7 @@ export class FollowsService {
           },
         },
       },
-    })
+    });
   }
 
   async isFollowing(userId: string, targetUserId: string) {
@@ -67,8 +93,8 @@ export class FollowsService {
           followingId: targetUserId,
         },
       },
-    })
+    });
 
-    return Boolean(follow)
+    return Boolean(follow);
   }
 }
