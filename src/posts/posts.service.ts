@@ -56,6 +56,37 @@ export class PostsService {
     });
   }
 
+  async getPostsByUser(profileUserId: string, currentUserId?: string) {
+    const posts = await this.prisma.post.findMany({
+      where: { authorId: profileUserId },
+      include: {
+        _count: {
+          select: { likes: true, comments: true },
+        },
+        likes: currentUserId
+          ? {
+              where: { userId: currentUserId },
+              select: { id: true },
+            }
+          : false,
+        author: {
+          select: {
+            id: true,
+            name: true,
+            avatar: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return posts.map((post) => ({
+      ...post,
+      likedByMe: currentUserId ? post.likes.length > 0 : false,
+      likes: undefined,
+    }));
+  }
+
   async getAllPosts(userId?: string) {
     const posts = await this.prisma.post.findMany({
       include: {

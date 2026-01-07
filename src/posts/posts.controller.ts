@@ -28,6 +28,15 @@ export class PostsController {
   }
 
   @UseGuards(OptionalJwtAuthGuard)
+  @Get('/user/:id')
+  getPostsByUser(
+    @Param('id') profileUserId: string,
+    @CurrentUser() user?: { userId: string },
+  ) {
+    return this.postService.getPostsByUser(profileUserId, user?.userId);
+  }
+
+  @UseGuards(OptionalJwtAuthGuard)
   @Get()
   getAll(@CurrentUser() user?: { userId: string }) {
     return this.postService.getAllPosts(user?.userId);
