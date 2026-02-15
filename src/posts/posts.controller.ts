@@ -1,4 +1,13 @@
-import { Controller, Post, Get, Body, UseGuards, Param } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  UseGuards,
+  Param,
+  Query,
+  Res,
+} from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -35,10 +44,21 @@ export class PostsController {
   ) {
     return this.postService.getPostsByUser(profileUserId, user?.userId);
   }
-
+  
   @UseGuards(OptionalJwtAuthGuard)
   @Get()
-  getAll(@CurrentUser() user?: { userId: string }) {
-    return this.postService.getAllPosts(user?.userId);
+  async getAll(
+    @CurrentUser() user: { userId: string } | undefined,
+    @Query('page') page = '1',
+    @Query('limit') limit = '10',
+    @Res({ passthrough: true }) res: any,
+  ) {
+    const { posts, totalPages } = await this.postService.getAllPosts(
+      user?.userId,
+      +page,
+      +limit,
+    );
+    res.header('x-total-pages', totalPages);
+    return posts;
   }
 }
